@@ -37,14 +37,14 @@ Shader "HDRP/TerrainLit"
         // value that exist to identify if the GI emission need to be enabled.
         // In our case we don't use such a mechanism but need to keep the code quiet. We declare the value and always enable it.
         // TODO: Fix the code in legacy unity so we can customize the behavior for GI
-        _EmissionColor("Color", Color) = (1, 1, 1)
+        [HideInInspector] _EmissionColor("Color", Color) = (1, 1, 1)
 
         // HACK: GI Baking system relies on some properties existing in the shader ("_MainTex", "_Cutoff" and "_Color") for opacity handling, so we need to store our version of those parameters in the hard-coded name the GI baking system recognizes.
-        _MainTex("Albedo", 2D) = "white" {}
-        _Color("Color", Color) = (1,1,1,1)
+        [HideInInspector] _MainTex("Albedo", 2D) = "white" {}
+        [HideInInspector] _Color("Color", Color) = (1,1,1,1)
 
-        [ToggleUI] _SupportDecals("Support Decals", Float) = 1.0
-        [ToggleUI] _ReceivesSSR("Receives SSR", Float) = 1.0
+        [HideInInspector] [ToggleUI] _SupportDecals("Support Decals", Float) = 1.0
+        [HideInInspector] [ToggleUI] _ReceivesSSR("Receives SSR", Float) = 1.0
     }
 
     HLSLINCLUDE
