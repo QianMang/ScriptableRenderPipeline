@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -42,21 +43,33 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
         {
         }
 
-        protected MaterialProperty enableHeightBlend;
+        MaterialProperty enableHeightBlend;
         const string kEnableHeightBlend = "_EnableHeightBlend";
 
         // Height blend
-        protected MaterialProperty heightTransition = null;
+        MaterialProperty heightTransition = null;
         const string kHeightTransition = "_HeightTransition";
 
-        protected MaterialProperty enableInstancedPerPixelNormal = null;
+        MaterialProperty enableInstancedPerPixelNormal = null;
         const string kEnableInstancedPerPixelNormal = "_EnableInstancedPerPixelNormal";
+
+        // Custom fields
+        List<MaterialProperty> customProperties = new List<MaterialProperty>();
 
         protected override void FindMaterialProperties(MaterialProperty[] props)
         {
-            enableHeightBlend = FindProperty(kEnableHeightBlend, props, false);
-            heightTransition = FindProperty(kHeightTransition, props, false);
-            enableInstancedPerPixelNormal = FindProperty(kEnableInstancedPerPixelNormal, props, false);
+            customProperties.Clear();
+            foreach (var prop in props)
+            {
+                if (prop.name == kEnableHeightBlend)
+                    enableHeightBlend = prop;
+                else if (prop.name == kHeightTransition)
+                    heightTransition = prop;
+                else if (prop.name == kEnableInstancedPerPixelNormal)
+                    enableInstancedPerPixelNormal = prop;
+                else if ((prop.flags & (MaterialProperty.PropFlags.HideInInspector | MaterialProperty.PropFlags.PerRendererData)) == 0)
+                    customProperties.Add(prop);
+            }
         }
 
         protected override bool ShouldEmissionBeEnabled(Material mat)
@@ -101,13 +114,9 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             CoreUtils.SetKeyword(material, "_TERRAIN_INSTANCED_PERPIXEL_NORMAL", enableInstancedPerPixelNormal);
         }
 
-        protected virtual bool ShouldDoMaterialProperties(Material material) => false;
-        protected virtual void DoMaterialProperties(Material material) { }
-
         protected override void MaterialPropertiesGUI(Material material)
         {
-            bool derivedClassDoMaterialProps = ShouldDoMaterialProperties(material);
-            if (enableHeightBlend != null || derivedClassDoMaterialProps)
+            if (enableHeightBlend != null || customProperties.Count > 0)
             {
                 using (var header = new HeaderScope(styles.terrainText, (uint)Expandable.Other, this))
                 {
@@ -123,8 +132,8 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                                 EditorGUI.indentLevel--;
                             }
                         }
-                        if (derivedClassDoMaterialProps)
-                            DoMaterialProperties(material);
+                        foreach (var prop in customProperties)
+                            m_MaterialEditor.DefaultShaderProperty(prop, prop.displayName);
                     }
                 }
             }
