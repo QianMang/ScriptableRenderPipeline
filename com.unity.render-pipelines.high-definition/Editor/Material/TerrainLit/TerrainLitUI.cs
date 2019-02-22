@@ -116,37 +116,39 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
         protected override void MaterialPropertiesGUI(Material material)
         {
-            if (enableHeightBlend != null || customProperties.Count > 0)
+            // Don't draw the header if we have empty content
+            if (enableHeightBlend == null && enableInstancedPerPixelNormal == null && customProperties.Count == 0)
+                return;
+
+            using (var header = new HeaderScope(styles.terrainText, (uint)Expandable.Other, this))
             {
-                using (var header = new HeaderScope(styles.terrainText, (uint)Expandable.Other, this))
+                if (header.expanded)
                 {
-                    if (header.expanded)
+                    if (enableHeightBlend != null)
                     {
-                        if (enableHeightBlend != null)
+                        m_MaterialEditor.ShaderProperty(enableHeightBlend, styles.enableHeightBlend);
+                        if (enableHeightBlend.floatValue > 0)
                         {
-                            m_MaterialEditor.ShaderProperty(enableHeightBlend, styles.enableHeightBlend);
-                            if (enableHeightBlend.floatValue > 0)
-                            {
-                                EditorGUI.indentLevel++;
-                                m_MaterialEditor.ShaderProperty(heightTransition, styles.heightTransition);
-                                EditorGUI.indentLevel--;
-                            }
+                            EditorGUI.indentLevel++;
+                            m_MaterialEditor.ShaderProperty(heightTransition, styles.heightTransition);
+                            EditorGUI.indentLevel--;
                         }
-                        foreach (var prop in customProperties)
-                            m_MaterialEditor.DefaultShaderProperty(prop, prop.displayName);
                     }
+                    if (enableInstancedPerPixelNormal != null)
+                    {
+                        EditorGUI.BeginDisabledGroup(!m_MaterialEditor.IsInstancingEnabled());
+                        m_MaterialEditor.ShaderProperty(enableInstancedPerPixelNormal, styles.enableInstancedPerPixelNormal);
+                        EditorGUI.EndDisabledGroup();
+                    }
+                    foreach (var prop in customProperties)
+                        m_MaterialEditor.DefaultShaderProperty(prop, prop.displayName);
                 }
             }
         }
 
         protected override void MaterialPropertiesAdvanceGUI(Material material)
         {
-            if (m_MaterialEditor.IsInstancingEnabled())
-            {
-                EditorGUI.indentLevel++;
-                m_MaterialEditor.ShaderProperty(enableInstancedPerPixelNormal, styles.enableInstancedPerPixelNormal);
-                EditorGUI.indentLevel--;
-            }
+            // do nothing
         }
 
         private bool m_ShowChannelRemapping = false;
