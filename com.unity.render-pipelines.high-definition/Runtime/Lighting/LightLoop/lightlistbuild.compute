@@ -314,7 +314,7 @@ void LIGHTLISTGEN(uint3 dispatchThreadId : SV_DispatchThreadID, uint threadID : 
             featureFlags = 0;
         }
 
-        g_TileFeatureFlags[tileIDX.y * nrTilesX + tileIDX.x] = featureFlags;
+        g_TileFeatureFlags[tileIDX.y * nrTilesX + tileIDX.x + unity_StereoEyeIndex * nrTilesX * nrTilesY] = featureFlags;
     }
 #endif
 

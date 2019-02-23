@@ -345,15 +345,10 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             sanitazedFrameSettings.bitDatas[(int)FrameSettingsField.BigTilePrepass] &= !stereoDoubleWide;
             sanitazedFrameSettings.bitDatas[(int)FrameSettingsField.DeferredTile] &= !stereoDoubleWide;
 
-            // XRTODO: variants support (solve how g_TileListOffset and surrounding math should work with stereo)
-            sanitazedFrameSettings.bitDatas[(int)FrameSettingsField.ComputeLightVariants] &= !stereo;
-            sanitazedFrameSettings.bitDatas[(int)FrameSettingsField.ComputeMaterialVariants] &= !stereo;
-
             // Deferred opaque are always using Fptl. Forward opaque can use Fptl or Cluster, transparent use cluster.
             // When MSAA is enabled we disable Fptl as it become expensive compare to cluster
             // In HD, MSAA is only supported for forward only rendering, no MSAA in deferred mode (for code complexity reasons)
-            // XRTODO: fix FPTL for stereo (disabled for now)
-            sanitazedFrameSettings.bitDatas[(int)FrameSettingsField.FPTLForForwardOpaque] &= !msaa && !stereo;
+            sanitazedFrameSettings.bitDatas[(int)FrameSettingsField.FPTLForForwardOpaque] &= !msaa && !stereoDoubleWide;
         }
 
         /// <summary>Aggregation is default with override of the renderer then sanitazed depending on supported features of hdrpasset.</summary>

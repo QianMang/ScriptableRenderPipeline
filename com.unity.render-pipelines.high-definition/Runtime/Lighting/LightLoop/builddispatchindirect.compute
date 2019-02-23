@@ -24,15 +24,17 @@ uniform uint g_NumTiles;
 uniform uint g_NumTilesX;
 
 [numthreads(NR_THREADS, 1, 1)]
-void BUILDINDIRECT(uint dispatchThreadId : SV_DispatchThreadID)
+void BUILDINDIRECT(uint3 dispatchThreadId : SV_DispatchThreadID)
 {
-    if (dispatchThreadId >= g_NumTiles)
+    if (dispatchThreadId.x >= g_NumTiles)
         return;
 
-    uint featureFlags = g_TileFeatureFlags[dispatchThreadId];
+    UNITY_STEREO_ASSIGN_COMPUTE_EYE_INDEX(dispatchThreadId.z);
 
-    uint tileY = (dispatchThreadId + 0.5f) / (float)g_NumTilesX;    // Integer division is extremely expensive, so we better avoid it
-    uint tileX = dispatchThreadId - tileY * g_NumTilesX;
+    uint featureFlags = g_TileFeatureFlags[dispatchThreadId.x + unity_StereoEyeIndex * g_NumTiles];
+
+    uint tileY = (dispatchThreadId.x + 0.5f) / (float)g_NumTilesX;    // Integer division is extremely expensive, so we better avoid it
+    uint tileX = dispatchThreadId.x - tileY * g_NumTilesX;
 
     // Check if there is no material (means it is a sky/background pixel).
     // Note that we can have no lights, yet we still need to render geometry with precomputed illumination.
@@ -49,6 +51,7 @@ void BUILDINDIRECT(uint dispatchThreadId : SV_DispatchThreadID)
         InterlockedAdd(g_DispatchIndirectBuffer[variant * 3 + 0], 1, offset);
 #endif
 
-        g_TileList[variant * g_NumTiles + offset] = (tileY << 16) | tileX;
+        // XRTODO: extend to more than 4 eyes? add asserts on C# side, list and consolidate all usage of hardcoded values
+        g_TileList[variant * g_NumTiles + offset] = (unity_StereoEyeIndex << 30) | (tileY << 15) | tileX;
     }
 }
