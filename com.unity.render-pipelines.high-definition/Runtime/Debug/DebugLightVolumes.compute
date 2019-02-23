@@ -30,7 +30,7 @@ void LightVolumeGradient(uint3 dispatchThreadId : SV_DispatchThreadID, uint2 gro
 	uint2 currentPixelCoordinate = groupId * DEBUG_LIGHT_VOLUME_TILE_SIZE + groupThreadId;
 
 	// Lightcount at this pixel
-    float lightCount = _DebugLightCountBuffer[COORD_TEXTURE2D_X(currentPixelCoordinate)];
+    float lightCount = _DebugLightCountBuffer[COORD_TEXTURE2D_X(currentPixelCoordinate)].r;
 
     // Tonemap this pixel value
     bool noLights = lightCount == 0.0f;
@@ -53,7 +53,7 @@ void LightVolumeColors(uint3 dispatchThreadId : SV_DispatchThreadID, uint2 group
 	uint2 currentPixelCoordinate = groupId * DEBUG_LIGHT_VOLUME_TILE_SIZE + groupThreadId;
 
 	// Lightcount at this pixel
-    float lightCount = _DebugLightCountBuffer[COORD_TEXTURE2D_X(currentPixelCoordinate)];
+    float lightCount = _DebugLightCountBuffer[COORD_TEXTURE2D_X(currentPixelCoordinate)].r;
 
     // Look around this pixel to check if this should be displayed as a border
     float maxLightCount = lightCount;
@@ -64,7 +64,7 @@ void LightVolumeColors(uint3 dispatchThreadId : SV_DispatchThreadID, uint2 group
     	{
     		// Compute the target pixel
     		int2 targetpixel = int2((uint)currentPixelCoordinate.x + radiusX, (uint)currentPixelCoordinate.y + radiusY);
-    		float neighborLightCount = _DebugLightCountBuffer[COORD_TEXTURE2D_X(targetpixel)];
+    		float neighborLightCount = _DebugLightCountBuffer[COORD_TEXTURE2D_X(targetpixel)].r;
     		maxLightCount = max(maxLightCount, neighborLightCount);
     		if(neighborLightCount != lightCount)
     		{
