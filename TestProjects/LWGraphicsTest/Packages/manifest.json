@@ -1,5 +1,10 @@
 {
   "dependencies": {
+  "com.unity.render-pipelines.core": "file:../../../com.unity.render-pipelines.core",
+    "com.unity.render-pipelines.lightweight": "file:../../../com.unity.render-pipelines.lightweight",
+    "com.unity.shadergraph": "file:../../../com.unity.shadergraph",
+    "com.unity.testframework.graphics": "file:../../../com.unity.testframework.graphics",
+	
     "com.unity.ads": "2.0.8",
     "com.unity.analytics": "3.3.2",
     "com.unity.collab-proxy": "1.2.15",
